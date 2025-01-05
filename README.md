@@ -1,5 +1,5 @@
 # **Python-Shell**
-A terminal/shell with unified command of both linux and windows completely developed in python, performs tasks more efficiently(almost lol) than a normal teminal.
+A terminal/shell with unified command of both linux and windows completely developed in python, performs tasks more efficiently(almost lol) than a normal terminal.
 
 ## Features
 1. Unified commands like rm for deleting directories/files.
