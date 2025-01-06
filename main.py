@@ -58,6 +58,58 @@ def completer(text, state):
     matches = [option for option in options if option.startswith(text)]
     return matches[state] if state < len(matches) else None
 
+
+def git_add(files):
+    try:
+        result = subprocess.run(['git', 'add'] + files, capture_output=True, text=True)
+        if result.stderr:
+            print(f"Error: {result.stderr}")
+        else:
+            print(result.stdout or "Files added successfully.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def git_push(remote="origin", branch="main"):
+    try:
+        result = subprocess.run(['git', 'push', remote, branch], capture_output=True, text=True)
+        if result.stderr:
+            print(f"Error: {result.stderr}")
+        else:
+            print(result.stdout or "Pushed to remote successfully.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def git_clone(repo_url):
+    try:
+        result = subprocess.run(['git', 'clone', repo_url], capture_output=True, text=True)
+        if result.stderr:
+            print(f"Error: {result.stderr}")
+        else:
+            print(result.stdout or "Repository cloned successfully.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def git_pull(remote="origin", branch="main"):
+    try:
+        result = subprocess.run(['git', 'pull', remote, branch], capture_output=True, text=True)
+        if result.stderr:
+            print(f"Error: {result.stderr}")
+        else:
+            print(result.stdout or "Pulled from remote successfully.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def git_init():
+    try:
+        result = subprocess.run(['git', 'init'], capture_output=True, text=True)
+        if result.stderr:
+            print(f"Error: {result.stderr}")
+        else:
+            print(result.stdout or "Git repository initialized.")
+    except Exception as e:
+        print(f"Error: {e}")
+                
+
 def main():
     #builtin_cmd = ["echo", "exit", "type", "pwd"]
     PATH = os.environ.get("PATH")
@@ -86,6 +138,36 @@ def main():
         #command=input()
         if command := input().strip():
 
+            if command.startswith("git "):
+                # command = input("git ").strip().split()
+                if not command:
+                    continue
+                cmd = command[0]
+                args = command[1:]
+                
+                if cmd == "add":
+                    git_add(args)
+                    continue
+                elif cmd == "push":
+                    git_push()
+                    continue
+                elif cmd == "clone":
+                    if args:
+                        git_clone(args[0])
+                    else:
+                        print("Error: Please provide a repository URL.")
+                        continue
+                elif cmd == "pull":
+                    git_pull()
+                    continue
+                elif cmd == "init":
+                    git_init()
+                    continue
+                elif cmd in ["exit", "quit"]:
+                    print("Exiting Git Interface.")
+                    break
+                else:
+                    print(f"Unknown command: {cmd}")
 
             if command.startswith("mkdir "):
                 try:
