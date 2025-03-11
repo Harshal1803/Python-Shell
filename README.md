@@ -9,6 +9,7 @@ A terminal/shell with unified command of both linux and windows completely devel
 5. Fully functional on Windows, with potential future expansion for macOS and Linux support.
 6. Designed for speed and low resource consumption, ensuring smooth operation on older machines.
 7. **NEW UPDATE**---- added git functionalities(git push ,pull ,add, clone, init).
+8. **NEW UPDATE 2**---- added undo functionality, can perfrom undo in 'rm' command.
 
 ## How to use it?
 1. It is as simple as the normal terminal, just download **main.exe** from the 'releases' section.
