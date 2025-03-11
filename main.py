@@ -4,6 +4,7 @@ import shutil
 import readline
 import subprocess
 import time
+import json
 
 RED = "\033[31m"  
 GREEN = "\033[32m"  
@@ -110,6 +111,34 @@ def git_init():
         print(f"Error: {e}")
                 
 
+TRASH_DIR = os.path.expanduser("~/.trash")
+
+# Ensure trash directory exists
+os.makedirs(TRASH_DIR, exist_ok=True)
+
+def undo():
+    undo_log = os.path.join(TRASH_DIR, ".undo_log")
+
+    if not os.path.exists(undo_log):
+        print("No recent deletions to undo!")
+        return
+
+    with open(undo_log, "r") as log:
+        lines = log.readlines()
+
+    if not lines:
+        print("No recent deletions to undo!")
+        return
+
+    last_entry = lines[-1].strip()
+    trash_path, original_path = last_entry.split(" ", 1)
+
+    shutil.move(trash_path, original_path)
+    print(f"Restored {original_path} successfully")
+
+    with open(undo_log, "w") as log:
+        log.writelines(lines[:-1])
+
 def main():
     #builtin_cmd = ["echo", "exit", "type", "pwd"]
     PATH = os.environ.get("PATH")
@@ -128,6 +157,8 @@ def main():
         "exit": "Exit the shell.",
         "systeminfo": "Display system information.",
     }
+    
+
 
     while True:
         sys.stdout.write("\033[33m" + os.getcwd() +" $>"+ "\033[30m")
@@ -180,15 +211,33 @@ def main():
             if command.startswith("rm "):
                 path=command[len("rm "):].strip()
 
-                if os.path.isfile(path):
-                    os.remove(path)
-                    print(f"Removed {GREEN}{path}{RESET} successfully")
-                elif os.path.isdir(path):
-                    shutil.rmtree(path)
-                    print(f"Removed {GREEN}{path}{RESET} and its content successfully")
+                if os.path.exists(path):
+                    trash_path = os.path.join(TRASH_DIR, os.path.basename(path))
+            
+                    # Ensure unique name if file already exists in trash
+                    counter = 1
+                    while os.path.exists(trash_path):
+                        trash_path = os.path.join(TRASH_DIR, f"{os.path.basename(path)}_{counter}")
+                        counter += 1
+            
+                    # Move file or directory to trash instead of deleting
+                    shutil.move(path, trash_path)
+                    print(f"Moved {GREEN}{path}{RESET} to trash successfully")
+
+                    # Save undo info
+                    with open(os.path.join(TRASH_DIR, ".undo_log"), "a") as log:
+                        log.write(f"{trash_path} {os.path.abspath(path)}\n")
+                        continue
                 else:
                     print(f"{RED}{path}{RESET} no such file or directory")
+                    continue
+                
+            elif command == "undo":
+                undo()
                 continue
+
+            elif command == "exit":
+                break
 
             if command == "clear":
                 os.system("clear" if os.name != "nt" else "cls")
@@ -305,7 +354,11 @@ def main():
             else:
                 print(f"{RED}{command}: not found{RESET}")
 
- 
+
+####### TRASH
+
+
+
 
 if __name__ == "__main__":
     main()
